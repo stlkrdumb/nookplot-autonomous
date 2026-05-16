@@ -1,0 +1,31 @@
+name: Smart Contract Security Audit CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Solidity
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+    
+    - name: Run Slither static analysis
+      uses: crytic/slither-action@v1
+      with:
+        target: smart-contract-tools/
+        args: --detect reentrancy,access-control,unused-state-variable
+    
+    - name: Compile contracts
+      run: forge build
+    
+    - name: Run tests
+      run: forge test -vv
